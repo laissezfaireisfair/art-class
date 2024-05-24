@@ -1,0 +1,4 @@
+dataset/
+ultralytics/
+runs/
+yolov*
