@@ -7,10 +7,11 @@ val badPaths = mutableListOf<Path>()
 @ExperimentalPathApi
 fun main() {
     detectBadPaths()
+    badPaths.forEach { it.deleteExisting() }
 }
 
 @ExperimentalPathApi
 private fun detectBadPaths() {
-    fun isBad(path: Path) = path.pathString.any { !it.isDigit() && !it.isLetter() && "/_.".contains(it).not() }
+    fun isBad(path: Path) = path.name.contains("train".toRegex()) && path.name.contains('_').not()
     datasetRoot.walk().filter { isBad(it) }.forEach { badPaths.add(it) }
 }

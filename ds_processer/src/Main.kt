@@ -13,7 +13,6 @@ fun main() {
     initializeDictionaryWithCsv()
     println("Initialised")
 
-    moveFolder(datasetPath / "train", resultPath / "train")
     for (i in 1..9)
         moveFolder(datasetPath / "train_$i", resultPath / "train")
     moveFolder(datasetPath / "test", resultPath / "test")
