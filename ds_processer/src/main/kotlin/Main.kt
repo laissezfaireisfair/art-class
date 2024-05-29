@@ -1,7 +1,10 @@
+package and.pac
+
 import java.io.File
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.*
+
 
 val datasetPath = Path("/mnt/ssd/Active-projects/ArtClass/unpacked")
 val resultPath = Path("/mnt/ssd/Active-projects/ArtClass/dataset")
