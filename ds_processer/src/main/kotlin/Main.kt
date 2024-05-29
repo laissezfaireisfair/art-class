@@ -1,54 +1,42 @@
 package and.pac
 
+import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import java.io.File
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.*
 
-
-val datasetPath = Path("/mnt/ssd/Active-projects/ArtClass/unpacked")
-val resultPath = Path("/mnt/ssd/Active-projects/ArtClass/dataset")
+val datasetPath = Path("/mnt/ssd/Active-projects/ArtClass/dataset")
+val resultPath = Path("/mnt/ssd/Active-projects/ArtClass/dataset_shaped_and_filtered")
+const val minimumImagesPerClass = 10
 
 val authorByFilename = mutableMapOf<String, String>()
+val countByAuthor = mutableMapOf<String, Int>()
 
 @ExperimentalPathApi
 fun main() {
-    initializeDictionaryWithCsv()
+    populateDictionariesWithCsv()
     println("Initialised")
 
-    for (i in 1..9)
-        moveFolder(datasetPath / "train_$i", resultPath / "train")
+    moveFolder(datasetPath / "train", resultPath / "train")
     moveFolder(datasetPath / "test", resultPath / "test")
 }
 
-fun initializeDictionaryWithCsv() {
-    fun parse(line: String) = line
-        .split('"')
-        .mapIndexed { index, block -> if (index % 2 == 1) block.filterNot { it == ',' } else block }
-        .joinToString("")
-        .split(',')
-        .takeIf { it.size == 12 }
-        ?.let { it[0] to it[11] } ?: throw InputMismatchException(line)
-
-    (datasetPath / "all_data_info.csv")
-        .toUri()
-        .let { File(it) }
-        .useLines { lines ->
-            lines.drop(1).forEach {
-                parse(it).let { (author, filename) -> authorByFilename[filename] = author }
-            }
-        }
+fun populateDictionariesWithCsv() = csvReader().open(File((datasetPath / "all_data_info.csv").toUri())) {
+    readAllAsSequence().drop(1).forEach { authorByFilename[it[11]] = it[0] }
+    authorByFilename.forEach { (_, author) -> countByAuthor[author] = (countByAuthor[author] ?: 1) + 1 }
 }
 
 @ExperimentalPathApi
 fun moveFolder(fromDir: Path, toDir: Path) {
     fromDir.walk().forEach {
         try {
-            val authorDir =
-                toDir / (authorByFilename[it.name] ?: throw InputMismatchException("No ${it.name} in csv"))
-            if (authorDir.notExists())
-                authorDir.createDirectories()
-            it.moveTo(authorDir / (fromDir.name + it.name))
+            val author = authorByFilename[it.name] ?: throw InputMismatchException("No ${it.name} in csv")
+            if (countByAuthor[author]!! < minimumImagesPerClass) return@forEach
+            with(toDir / author) {
+                if (notExists()) createDirectories()
+                it.copyTo(this / (fromDir.name + it.name))
+            }
         } catch (exception: Exception) {
             println(exception)
         }

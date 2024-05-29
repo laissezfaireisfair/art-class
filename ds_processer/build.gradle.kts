@@ -10,6 +10,7 @@ repositories {
 }
 
 dependencies {
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.3")
 }
 
 tasks.test {
