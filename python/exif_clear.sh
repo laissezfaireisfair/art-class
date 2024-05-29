@@ -14,4 +14,4 @@ walk_dir () {
     done
 }
 
-walk_dir "dataset"
+walk_dir "../dataset"
