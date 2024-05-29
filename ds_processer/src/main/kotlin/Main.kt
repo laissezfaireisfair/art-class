@@ -35,7 +35,7 @@ fun moveFolder(fromDir: Path, toDir: Path) {
             if (countByAuthor[author]!! < minimumImagesPerClass) return@forEach
             with(toDir / author) {
                 if (notExists()) createDirectories()
-                it.copyTo(this / (fromDir.name + it.name))
+                it.moveTo(this / (fromDir.name + it.name))
             }
         } catch (exception: Exception) {
             println(exception)
